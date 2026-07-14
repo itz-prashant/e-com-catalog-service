@@ -12,7 +12,7 @@ export default [
     body("priceConfiguration.*.priceType")
         .exists()
         .withMessage("Price type is required")
-        .custom((value) => {
+        .custom((value:string) => {
             const validKeys = ["base", "additional"];
             if (!validKeys.includes(value)) {
                 throw new Error(
