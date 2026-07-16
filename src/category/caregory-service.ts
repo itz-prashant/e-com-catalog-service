@@ -15,4 +15,11 @@ export class CategoryService {
     async getOne(categoryId: string){
        return await CategoryModel.findOne({_id: categoryId})
     }
+
+    async update(categoryId: string, updateData: Partial<Category>){
+        return await CategoryModel.findByIdAndUpdate(categoryId,
+            {$set: updateData},
+            {new:true}
+        )
+    }
 }

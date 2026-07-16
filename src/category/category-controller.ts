@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
-import { Category } from "./category-types";
+import { Category, PriceConfiguration } from "./category-types";
 import { CategoryService } from "./caregory-service";
 import { Logger } from "winston";
 
@@ -46,6 +46,48 @@ export class CategoryController {
             return next(createHttpError(404, "Category not found"));
         }
         this.logger.info(`Getting category`, { id: category._id });
-        res.json(category)
+        res.json(category);
+    }
+
+    async update(req: Request, res: Response, next: NextFunction) {
+        const result = validationResult(req);
+
+        if (!result.isEmpty()) {
+            return next(createHttpError(400, result.array()[0].msg as string));
+        }
+
+        const { categoryId } = req.params;
+
+        const updateData = req.body as Partial<Category>;
+
+        const existingCategory = await this.categoryService.getOne(categoryId);
+
+        if (!existingCategory) {
+            return next(createHttpError(404, "Category not found"));
+        }
+
+        if (updateData.priceConfiguration) {
+            const existingConfig =
+                existingCategory.priceConfiguration instanceof Map
+                    ? Object.fromEntries(existingCategory.priceConfiguration)
+                    : existingCategory.priceConfiguration;
+
+            const mergedConfig: PriceConfiguration = {
+                ...existingConfig,
+                ...updateData.priceConfiguration,
+            };
+            updateData.priceConfiguration = mergedConfig;
+        }
+
+        const updatedCategory = await this.categoryService.update(
+            categoryId,
+            updateData,
+        );
+
+        this.logger.info(`Updated category`, { id: categoryId });
+
+        res.json({
+            id: updatedCategory?._id,
+        });
     }
 }
