@@ -3,7 +3,7 @@ import { Request } from "express";
 export interface PriceConfiguration {
     [key: string]: {
         priceType: "base" | "additional";
-        availableOption: string[];
+        availableOptions: string[];
     };
 }
 

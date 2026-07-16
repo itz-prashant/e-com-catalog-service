@@ -24,4 +24,11 @@ export class CategoryController {
 
         res.json({id: category._id});
     }
+
+    async getAll(req:Request, res:Response){
+
+        const categories = await this.categoryService.getAll()
+        this.logger.info(`Getting categories list`);
+        res.json(categories);
+    }
 }

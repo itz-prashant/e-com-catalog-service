@@ -7,4 +7,8 @@ export class CategoryService {
 
         return newCategory.save()
     }
+
+    async getAll(){
+       return CategoryModel.find()
+    }
 }
