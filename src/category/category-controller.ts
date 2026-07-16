@@ -6,8 +6,10 @@ import { CategoryService } from "./caregory-service";
 import { Logger } from "winston";
 
 export class CategoryController {
-
-    constructor(private categoryService:CategoryService, private logger: Logger ){}
+    constructor(
+        private categoryService: CategoryService,
+        private logger: Logger,
+    ) {}
 
     async create(req: Request, res: Response, next: NextFunction) {
         const result = validationResult(req);
@@ -18,17 +20,32 @@ export class CategoryController {
 
         const { name, priceConfiguration, attributes } = req.body as Category;
 
-        const category = await this.categoryService.create({name, priceConfiguration, attributes})
+        const category = await this.categoryService.create({
+            name,
+            priceConfiguration,
+            attributes,
+        });
 
-        this.logger.info(`Created category`, {id: category._id})
+        this.logger.info(`Created category`, { id: category._id });
 
-        res.json({id: category._id});
+        res.json({ id: category._id });
     }
 
-    async getAll(req:Request, res:Response){
-
-        const categories = await this.categoryService.getAll()
+    async getAll(req: Request, res: Response) {
+        const categories = await this.categoryService.getAll();
         this.logger.info(`Getting categories list`);
         res.json(categories);
+    }
+
+    async getOne(req: Request, res: Response, next: NextFunction) {
+        const { categoryId } = req.params;
+
+        const category = await this.categoryService.getOne(categoryId);
+
+        if (!category) {
+            return next(createHttpError(404, "Category not found"));
+        }
+        this.logger.info(`Getting category`, { id: category._id });
+        res.json(category)
     }
 }

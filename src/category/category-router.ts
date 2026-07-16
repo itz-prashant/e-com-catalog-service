@@ -18,11 +18,25 @@ router.post(
     authenticate,
     canAccess([Roles.ADMIN]),
     categoryValidator,
-    asyncWrapper((req: Request, res: Response, next: NextFunction) =>
-       void categoryController.create(req, res, next),
+    asyncWrapper(
+        (req: Request, res: Response, next: NextFunction) =>
+            void categoryController.create(req, res, next),
     ),
 );
 
-router.get("/", asyncWrapper((req,res)=> categoryController.getAll(req,res)))
+router.get(
+    "/",
+    asyncWrapper((req, res) => categoryController.getAll(req, res)),
+);
+
+router.get(
+    "/:categoryId",
+    authenticate,
+    canAccess([Roles.ADMIN]),
+    asyncWrapper(
+        (req: Request, res: Response, next: NextFunction) =>
+            void categoryController.getOne(req, res, next),
+    ),
+);
 
 export default router;
