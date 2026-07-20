@@ -7,6 +7,8 @@ import { FileStorage } from "../common/types/storage";
 import { UploadedFile } from "express-fileupload";
 import { AuthRequest } from "../category/category-types";
 import { Roles } from "../common/constants";
+import { Filter } from "./product-types";
+import mongoose from "mongoose";
 
 export class ProductController {
     constructor(
@@ -120,4 +122,24 @@ export class ProductController {
 
         res.json({id: productId})
     };
+
+    index = async (req: Request, res:Response)=>{
+        const {q, tenantId, categoryId, isPublished} = req.query
+
+        const filters: Filter= {}
+
+        if(isPublished === "true"){
+            filters.isPublished = true
+        }
+
+        if(tenantId) filters.tenantId = Number(tenantId)
+
+        if(categoryId && mongoose.Types.ObjectId.isValid(categoryId as string)){
+            filters.categoryId = new mongoose.Types.ObjectId(categoryId as string)
+        }   
+
+        const products = await this.productService.getProducts(q as string, filters)
+        
+        res.json(products)
+    }
 }

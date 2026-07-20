@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 export interface AttributeValue {
   name: string;
   value: any;
@@ -20,4 +22,10 @@ export interface Product {
     tenantId: number;
     categoryId: string;
     image: string;
+}
+
+export interface Filter {
+  tenantId?: number
+  categoryId?: mongoose.Types.ObjectId
+  isPublished?: boolean
 }
