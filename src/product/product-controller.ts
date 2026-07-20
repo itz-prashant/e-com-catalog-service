@@ -7,7 +7,7 @@ import { FileStorage } from "../common/types/storage";
 import { UploadedFile } from "express-fileupload";
 import { AuthRequest } from "../category/category-types";
 import { Roles } from "../common/constants";
-import { Filter } from "./product-types";
+import { Filter, Product } from "./product-types";
 import mongoose from "mongoose";
 
 export class ProductController {
@@ -66,25 +66,31 @@ export class ProductController {
 
         const { productId } = req.params;
 
-        const existProduct = await this.productService.getProductById(productId)
+        const existProduct =
+            await this.productService.getProductById(productId);
 
-        if(!existProduct){
-            return next(createHttpError(404, "Product not found"))
+        if (!existProduct) {
+            return next(createHttpError(404, "Product not found"));
         }
 
-     if((req as AuthRequest).auth.role !== Roles.ADMIN){
-           const tenant = (req as AuthRequest).auth.tenant
+        if ((req as AuthRequest).auth.role !== Roles.ADMIN) {
+            const tenant = (req as AuthRequest).auth.tenant;
 
-        if(existProduct.tenantId !== tenant){
-            return next(createHttpError(403, "You are not allowed to access this product"))
+            if (existProduct.tenantId !== tenant) {
+                return next(
+                    createHttpError(
+                        403,
+                        "You are not allowed to access this product",
+                    ),
+                );
+            }
         }
-     }
 
-        let imageName: string | undefined
-        let oldImage: string | undefined
+        let imageName: string | undefined;
+        let oldImage: string | undefined;
 
         if (req.files?.image) {
-            oldImage = existProduct.image
+            oldImage = existProduct.image;
 
             const image = req.files.image as UploadedFile;
             imageName = uuidv4();
@@ -94,7 +100,7 @@ export class ProductController {
                 fileData: image.data,
             });
 
-            await this.storage.delete(oldImage)
+            await this.storage.delete(oldImage);
         }
 
         const {
@@ -118,31 +124,53 @@ export class ProductController {
             image: imageName ? imageName : (oldImage as string),
         };
 
-        await this.productService.updateProduct(productId, product)
+        await this.productService.updateProduct(productId, product);
 
-        res.json({id: productId})
+        res.json({ id: productId });
     };
 
-    index = async (req: Request, res:Response)=>{
-        const {q, tenantId, categoryId, isPublished} = req.query
+    index = async (req: Request, res: Response) => {
+        const { q, tenantId, categoryId, isPublished } = req.query;
 
-        const filters: Filter= {}
+        const filters: Filter = {};
 
-        if(isPublished === "true"){
-            filters.isPublished = true
+        if (isPublished === "true") {
+            filters.isPublished = true;
         }
 
-        if(tenantId) filters.tenantId = Number(tenantId)
+        if (tenantId) filters.tenantId = Number(tenantId);
 
-        if(categoryId && mongoose.Types.ObjectId.isValid(categoryId as string)){
-            filters.categoryId = new mongoose.Types.ObjectId(categoryId as string)
-        }   
+        if (
+            categoryId &&
+            mongoose.Types.ObjectId.isValid(categoryId as string)
+        ) {
+            filters.categoryId = new mongoose.Types.ObjectId(
+                categoryId as string,
+            );
+        }
 
-        const products = await this.productService.getProducts(q as string, filters,{
-            page: req.query.page ? Number(req.query.page) : 1,
-            limit: req.query.limit ? Number(req.query.limit) : 10
-        })
-        
-        res.json(products)
-    }
+        const products = await this.productService.getProducts(
+            q as string,
+            filters,
+            {
+                page: req.query.page ? Number(req.query.page) : 1,
+                limit: req.query.limit ? Number(req.query.limit) : 10,
+            },
+        );
+
+        const finalProduct = (products.data as Product[]).map((product: Product) => {
+            return {
+                ...product,
+                // TODO : uncomment when s3 bucket setup
+                // image: this.storage.getObjectUri(product.image),
+            };
+        });
+
+        res.json({
+            data: finalProduct,
+            total: products.total,
+            pageSize: products.pageSize,
+            currentPage: products.currentPage,
+        });
+    };
 }

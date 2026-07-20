@@ -2,5 +2,5 @@ export const paginationLabels = {
     totalDocs: "total",
     docs: "data",
     limit: "pageSize",
-    page: "currantPage"
+    page: "currentPage"
 };
