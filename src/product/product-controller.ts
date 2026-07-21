@@ -185,4 +185,12 @@ export class ProductController {
 
         res.json(product)
     }
+
+    delete = async(req:Request, res:Response)=>{
+        const {productId} = req.params
+
+        await this.productService.delete(productId)
+
+        res.json({_id: productId})
+    }
 }

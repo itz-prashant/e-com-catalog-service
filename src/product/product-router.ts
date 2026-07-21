@@ -53,4 +53,6 @@ router.get("/", asyncWrapper(productController.index))
 
 router.get("/:productId",authenticate, canAccess([Roles.ADMIN, Roles.MANAGER]), asyncWrapper(productController.getone))
 
+router.delete("/:productId", authenticate, canAccess([Roles.ADMIN, Roles.MANAGER]), asyncWrapper(productController.delete))
+
 export default router;

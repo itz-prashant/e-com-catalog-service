@@ -60,4 +60,8 @@ export class ProductService {
         // const result = await aggregate.exec()
         // return result as Product[]
     }
+
+    async delete(productId:string){
+        return await productModel.findByIdAndDelete(productId)
+    }
 }
