@@ -173,4 +173,16 @@ export class ProductController {
             currentPage: products.currentPage,
         });
     };
+
+    getone = async (req:Request, res:Response, next:NextFunction)=>{
+        const {productId} = req.params
+
+        const product = await this.productService.getProductById(productId)
+
+        if(!product){
+            return next(createHttpError(404, "Product not found"));
+        }
+
+        res.json(product)
+    }
 }
