@@ -16,4 +16,6 @@ const toppingController = new ToppingController(s3Storage, toppingService)
 
 router.post("/", authenticate, createToppingValidator ,canAccess([Roles.ADMIN, Roles.MANAGER]), asyncWrapper(toppingController.create))
 
+router.get("/", asyncWrapper(toppingController.index))
+
 export default router

@@ -5,4 +5,8 @@ export class ToppingService {
     async create(topping:Topping){
         await toppingModel.create(topping)
     }
+
+    async getAll(tenantId:number){
+        return await toppingModel.find({tenantId})
+    }
 }

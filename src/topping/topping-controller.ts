@@ -37,4 +37,23 @@ export class ToppingController {
 
         res.json(savedTopping)
     }
+
+    index = async (req:Request, res:Response)=>{
+
+        const {tenantId} = req.query
+
+        const toppings = await this.toppingService.getAll(Number(tenantId))
+
+        const readyTopping = toppings.map((topping)=>{
+            return {
+                id: topping._id,
+                name: topping.name,
+                price: topping.price,
+                tenantId: topping.tenantId,
+                image: this.storage.getObjectUri(topping.image as string)
+            }
+        })
+
+        res.json(readyTopping)
+    }
 }

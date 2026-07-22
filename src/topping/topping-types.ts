@@ -7,7 +7,7 @@ export interface Topping {
     name: string,
     price: number,
     tenantId: number,
-    image: UploadedFile
+    image: UploadedFile | string
 }
 
 export interface ToppingRequestBody {
