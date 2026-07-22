@@ -88,27 +88,42 @@ export class ToppingController {
         }
 
         let imageName: string | undefined;
-        let oldImage: string  | undefined;
+        let oldImage: string | undefined;
 
-        if(req.files?.image){
-            oldImage = existTopping.image as string
+        if (req.files?.image) {
+            oldImage = existTopping.image as string;
 
-            const image = req.files.image as UploadedFile
-            imageName = uuidv4()
+            const image = req.files.image as UploadedFile;
+            imageName = uuidv4();
 
             await this.storage.upload({
                 filename: imageName,
-                fileData: image.data
-            })
+                fileData: image.data,
+            });
 
-            await this.storage.delete(oldImage)
+            await this.storage.delete(oldImage);
         }
 
-        const {name, price ,tenantId} = req.body
+        const { name, price, tenantId } = req.body;
 
-        await this.toppingService.updateTopping(toppingId, {name, price, tenantId, image: imageName ? imageName : (oldImage as string) })
+        await this.toppingService.updateTopping(toppingId, {
+            name,
+            price,
+            tenantId,
+            image: imageName ? imageName : (oldImage as string),
+        });
 
-        res.json({id:toppingId})
+        res.json({ id: toppingId });
+    };
 
+    getOne = async (req: Request, res: Response, next:NextFunction) => {
+        const { toppingId } = req.params;
+
+        const topping = await this.toppingService.getToppingById(toppingId);
+
+        if (!topping) {
+            return next(createHttpError(404, "Topping not found"));
+        }
+        res.json(topping);
     };
 }

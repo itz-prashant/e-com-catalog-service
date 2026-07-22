@@ -21,4 +21,6 @@ router.get("/", asyncWrapper(toppingController.index))
 
 router.put("/:toppingId", authenticate, canAccess([Roles.ADMIN, Roles.MANAGER]),updateProductValidator ,asyncWrapper(toppingController.update))
 
+router.get("/:toppingId", asyncWrapper(toppingController.getOne))
+
 export default router
