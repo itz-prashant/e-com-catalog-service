@@ -7,6 +7,7 @@ import { ToppingController } from "./topping-controller"
 import createToppingValidator from "./create-topping-validator"
 import { S3Storage } from "../common/services/S3Storage"
 import { ToppingService } from "./topping-service"
+import updateProductValidator from "../product/update-product-validator"
 
 const router = express.Router()
 
@@ -17,5 +18,7 @@ const toppingController = new ToppingController(s3Storage, toppingService)
 router.post("/", authenticate, createToppingValidator ,canAccess([Roles.ADMIN, Roles.MANAGER]), asyncWrapper(toppingController.create))
 
 router.get("/", asyncWrapper(toppingController.index))
+
+router.put("/:toppingId", authenticate, canAccess([Roles.ADMIN, Roles.MANAGER]),updateProductValidator ,asyncWrapper(toppingController.update))
 
 export default router
