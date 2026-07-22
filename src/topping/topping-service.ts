@@ -21,4 +21,8 @@ export class ToppingService {
             { new: true },
         );
     }
+
+    async delete(toppingId:string){
+        return await toppingModel.findByIdAndDelete(toppingId)
+    }
 }

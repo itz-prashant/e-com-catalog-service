@@ -126,4 +126,18 @@ export class ToppingController {
         }
         res.json(topping);
     };
+
+    delete = async(req: Request, res: Response, next:NextFunction)=>{
+        const { toppingId } = req.params; 
+
+        const topping = await this.toppingService.getToppingById(toppingId);
+
+        if (!topping) {
+            return next(createHttpError(404, "Topping not found"));
+        }
+
+        await this.toppingService.delete(toppingId)
+
+        res.json({id: toppingId})
+    }
 }

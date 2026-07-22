@@ -23,4 +23,6 @@ router.put("/:toppingId", authenticate, canAccess([Roles.ADMIN, Roles.MANAGER]),
 
 router.get("/:toppingId", asyncWrapper(toppingController.getOne))
 
+router.delete("/:toppingId", authenticate, canAccess([Roles.ADMIN, Roles.MANAGER]), asyncWrapper(toppingController.delete))
+
 export default router
