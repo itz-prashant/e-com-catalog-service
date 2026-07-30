@@ -7,15 +7,17 @@ import { asyncWrapper } from "../common/utils/async-wrapper";
 import createProductValidator from "./create-product-validator";
 import { ProductService } from "./product-service";
 import fileUpload from "express-fileupload";
-import { S3Storage } from "../common/services/S3Storage";
+// import { S3Storage } from "../common/services/S3Storage";
 import createHttpError from "http-errors";
 import updateProductValidator from "./update-product-validator";
+import { StorageFactory } from "../common/services/StorageFactory";
 
 const router = express.Router();
 
 const productService = new ProductService();
-const s3Storage = new S3Storage();
-const productController = new ProductController(productService, s3Storage);
+// const s3Storage = new S3Storage();
+const storage = StorageFactory.create();
+const productController = new ProductController(productService, storage);
 
 router.post(
     "/",

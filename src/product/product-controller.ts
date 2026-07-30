@@ -162,7 +162,7 @@ export class ProductController {
             return {
                 ...product,
                 // TODO : uncomment when s3 bucket setup
-                // image: this.storage.getObjectUri(product.image),
+                image: this.storage.getObjectUri(product.image),
             };
         });
 

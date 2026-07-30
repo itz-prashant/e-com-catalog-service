@@ -6,6 +6,7 @@ import toppingRouter from "./topping/topping-router";
 import cookieParser from "cookie-parser"
 import cors from "cors"
 import config from "config"
+import path from "node:path";
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use(
         credentials: true,
     }),
 );
+
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(express.json())
 app.use(cookieParser())
