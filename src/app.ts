@@ -30,7 +30,7 @@ app.use("/categories", categoryRouter)
 
 app.use("/products", productRouter)
 
-app.use("toppings", toppingRouter)
+app.use("/toppings", toppingRouter)
 
 app.use(globalErrorHandler);
 

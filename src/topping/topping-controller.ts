@@ -16,7 +16,6 @@ export class ToppingController {
     ) {}
     create = async (req: Request, res: Response, next: NextFunction) => {
         const result = validationResult(req);
-
         if (!result.isEmpty()) {
             return next(createHttpError(400, result.array()[0].msg as string));
         }
@@ -35,7 +34,7 @@ export class ToppingController {
             name,
             price,
             tenantId,
-            image,
+            image: fileUuid,
         });
 
         res.json(savedTopping);

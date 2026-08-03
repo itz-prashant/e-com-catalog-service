@@ -9,7 +9,7 @@ export default [
     body("price")
         .exists()
         .withMessage("Price is required")
-        .isLuhnNumber()
+        .isNumeric()
         .withMessage("Price should be number"),
     body("image")
         .custom((value, {req})=>{
