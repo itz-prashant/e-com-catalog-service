@@ -17,7 +17,7 @@ const categoryController = new CategoryController(categoryService, logger);
 router.post(
     "/",
     authenticate,
-    canAccess([Roles.ADMIN]),
+    canAccess([Roles.ADMIN, Roles.MANAGER]),
     categoryValidator,
     asyncWrapper(
         (req: Request, res: Response, next: NextFunction) =>
@@ -33,14 +33,14 @@ router.get(
 router.get(
     "/:categoryId",
     authenticate,
-    canAccess([Roles.ADMIN]),
+    canAccess([Roles.ADMIN, Roles.MANAGER]),
     asyncWrapper(
         (req: Request, res: Response, next: NextFunction) =>
             void categoryController.getOne(req, res, next),
     ),
 );
 
-router.patch("/:categoryId", authenticate, canAccess([Roles.ADMIN]), categoryUpdateValidator,  asyncWrapper(
+router.patch("/:categoryId", authenticate, canAccess([Roles.ADMIN,Roles.MANAGER]), categoryUpdateValidator,  asyncWrapper(
         (req: Request, res: Response, next: NextFunction) =>
             void categoryController.update(req, res, next),
     ),)
