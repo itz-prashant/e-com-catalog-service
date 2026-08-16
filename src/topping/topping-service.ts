@@ -3,7 +3,7 @@ import toppingModel from "./topping.model";
 
 export class ToppingService {
     async create(topping: Topping) {
-        await toppingModel.create(topping);
+        return await toppingModel.create(topping);
     }
 
     async getAll(tenantId: number) {
