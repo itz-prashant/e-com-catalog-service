@@ -9,11 +9,13 @@ import { AuthRequest } from "../category/category-types";
 import { Roles } from "../common/constants";
 import { Filter, Product } from "./product-types";
 import mongoose from "mongoose";
+import { MessageProducerBroker } from "../common/types/broker";
 
 export class ProductController {
     constructor(
         private productService: ProductService,
         private storage: FileStorage,
+        private broker: MessageProducerBroker
     ) {}
 
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -53,6 +55,11 @@ export class ProductController {
         };
 
         const newProduct = await this.productService.createProduct(product);
+
+        // Send product to kafka
+        // Move topic name to config
+
+        await this.broker.sendMessgae("product", JSON.stringify({id: newProduct._id, priceConfiguration: newProduct.priceConfiguration}))
 
         res.json({ id: newProduct._id });
     };
@@ -124,7 +131,9 @@ export class ProductController {
             image: imageName ? imageName : (oldImage as string),
         };
 
-        await this.productService.updateProduct(productId, product);
+        const updatedProduct = await this.productService.updateProduct(productId, product);
+
+        await this.broker.sendMessgae("product", JSON.stringify({id: updatedProduct._id, priceConfiguration: updatedProduct.priceConfiguration}))
 
         res.json({ id: productId });
     };
