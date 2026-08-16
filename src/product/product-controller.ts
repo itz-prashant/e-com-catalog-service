@@ -10,6 +10,7 @@ import { Roles } from "../common/constants";
 import { Filter, Product } from "./product-types";
 import mongoose from "mongoose";
 import { MessageProducerBroker } from "../common/types/broker";
+import { mapToObject } from "../utils";
 
 export class ProductController {
     constructor(
@@ -59,7 +60,7 @@ export class ProductController {
         // Send product to kafka
         // Move topic name to config
 
-        await this.broker.sendMessgae("product", JSON.stringify({id: newProduct._id, priceConfiguration: newProduct.priceConfiguration}))
+        await this.broker.sendMessgae("product", JSON.stringify({id: newProduct._id, priceConfiguration: mapToObject(newProduct.priceConfiguration as unknown as Map<string, any>)}))
 
         res.json({ id: newProduct._id });
     };
@@ -133,7 +134,7 @@ export class ProductController {
 
         const updatedProduct = await this.productService.updateProduct(productId, product);
 
-        await this.broker.sendMessgae("product", JSON.stringify({id: updatedProduct._id, priceConfiguration: updatedProduct.priceConfiguration}))
+        await this.broker.sendMessgae("product", JSON.stringify({id: updatedProduct._id, priceConfiguration: mapToObject(updatedProduct.priceConfiguration as unknown as Map<string, any>)}))
 
         res.json({ id: productId });
     };
