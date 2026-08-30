@@ -7,7 +7,7 @@ import { FileStorage } from "../common/types/storage";
 import { UploadedFile } from "express-fileupload";
 import { AuthRequest } from "../category/category-types";
 import { Roles } from "../common/constants";
-import { Filter, Product } from "./product-types";
+import { Filter, Product, ProductEvents } from "./product-types";
 import mongoose from "mongoose";
 import { MessageProducerBroker } from "../common/types/broker";
 import { mapToObject } from "../utils";
@@ -16,7 +16,7 @@ export class ProductController {
     constructor(
         private productService: ProductService,
         private storage: FileStorage,
-        private broker: MessageProducerBroker
+        private broker: MessageProducerBroker,
     ) {}
 
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -60,7 +60,21 @@ export class ProductController {
         // Send product to kafka
         // Move topic name to config
 
-        await this.broker.sendMessgae("product", JSON.stringify({id: newProduct._id, priceConfiguration: mapToObject(newProduct.priceConfiguration as unknown as Map<string, any>)}))
+        await this.broker.sendMessgae(
+            "product",
+            JSON.stringify({
+                event_type: ProductEvents.PRODUCT_CREATE,
+                data: {
+                    id: newProduct._id,
+                    priceConfiguration: mapToObject(
+                        newProduct.priceConfiguration as unknown as Map<
+                            string,
+                            any
+                        >,
+                    ),
+                },
+            }),
+        );
 
         res.json({ id: newProduct._id });
     };
@@ -132,9 +146,26 @@ export class ProductController {
             image: imageName ? imageName : (oldImage as string),
         };
 
-        const updatedProduct = await this.productService.updateProduct(productId, product);
+        const updatedProduct = await this.productService.updateProduct(
+            productId,
+            product,
+        );
 
-        await this.broker.sendMessgae("product", JSON.stringify({id: updatedProduct._id, priceConfiguration: mapToObject(updatedProduct.priceConfiguration as unknown as Map<string, any>)}))
+        await this.broker.sendMessgae(
+            "product",
+            JSON.stringify({
+                event_type: ProductEvents.PRODUCT_CREATE,
+                data: {
+                    id: updatedProduct._id,
+                    priceConfiguration: mapToObject(
+                        updatedProduct.priceConfiguration as unknown as Map<
+                            string,
+                            any
+                        >,
+                    ),
+                },
+            }),
+        );
 
         res.json({ id: productId });
     };
@@ -168,13 +199,15 @@ export class ProductController {
             },
         );
 
-        const finalProduct = (products.data as Product[]).map((product: Product) => {
-            return {
-                ...product,
-                // TODO : uncomment when s3 bucket setup
-                image: this.storage.getObjectUri(product.image),
-            };
-        });
+        const finalProduct = (products.data as Product[]).map(
+            (product: Product) => {
+                return {
+                    ...product,
+                    // TODO : uncomment when s3 bucket setup
+                    image: this.storage.getObjectUri(product.image),
+                };
+            },
+        );
 
         res.json({
             data: finalProduct,
@@ -184,23 +217,23 @@ export class ProductController {
         });
     };
 
-    getone = async (req:Request, res:Response, next:NextFunction)=>{
-        const {productId} = req.params
+    getone = async (req: Request, res: Response, next: NextFunction) => {
+        const { productId } = req.params;
 
-        const product = await this.productService.getProductById(productId)
+        const product = await this.productService.getProductById(productId);
 
-        if(!product){
+        if (!product) {
             return next(createHttpError(404, "Product not found"));
         }
 
-        res.json(product)
-    }
+        res.json(product);
+    };
 
-    delete = async(req:Request, res:Response)=>{
-        const {productId} = req.params
+    delete = async (req: Request, res: Response) => {
+        const { productId } = req.params;
 
-        await this.productService.delete(productId)
+        await this.productService.delete(productId);
 
-        res.json({_id: productId})
-    }
+        res.json({ _id: productId });
+    };
 }
