@@ -5,7 +5,7 @@ import createHttpError from "http-errors";
 import { v4 as uuidv4 } from "uuid";
 import { FileStorage } from "../common/types/storage";
 import { ToppingService } from "./topping-service";
-import { Topping, ToppingRequestBody } from "./topping-types";
+import { Topping, ToppingEvents, ToppingRequestBody } from "./topping-types";
 import { AuthRequest } from "../category/category-types";
 import { Roles } from "../common/constants";
 import { MessageProducerBroker } from "../common/types/broker";
@@ -42,9 +42,12 @@ export class ToppingController {
         await this.broker.sendMessgae(
             "topping",
             JSON.stringify({
-                id: savedTopping._id,
-                price: savedTopping.price,
-                tenantId: savedTopping.tenantId,
+                event_type: ToppingEvents.TOPPING_CREATE,
+                data: {
+                    id: savedTopping._id,
+                    price: savedTopping.price,
+                    tenantId: savedTopping.tenantId,
+                },
             }),
         );
 
@@ -129,9 +132,12 @@ export class ToppingController {
         await this.broker.sendMessgae(
             "topping",
             JSON.stringify({
-                id: updatedTopping?._id,
-                price: updatedTopping?.price,
-                tenantId: updatedTopping?.tenantId,
+                event_type: ToppingEvents.TOPPING_CREATE,
+                data: {
+                    id: updatedTopping?._id,
+                    price: updatedTopping?.price,
+                    tenantId: updatedTopping?.tenantId,
+                },
             }),
         );
 
