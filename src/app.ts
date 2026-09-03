@@ -12,7 +12,7 @@ const app = express();
 
 app.use(
     cors({
-        origin: config.get("frontend.ADMIN_DASHBOARD_BASE_URL"),
+        origin: [config.get("frontend.ADMIN_DASHBOARD_BASE_URL"),config.get("frontend.clientUI"),config.get("frontend.adminUI")],
         credentials: true,
     }),
 );
